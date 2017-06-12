@@ -8,14 +8,14 @@ import OfflinePlugin from 'offline-plugin';
 import path from 'path';
 const ENV = process.env.NODE_ENV || 'development';
 
-const CSS_MAPS = ENV!=='production';
+const CSS_MAPS = ENV !== 'production';
 
 module.exports = {
-	context: path.resolve(__dirname, "src"),
+	context: path.resolve(__dirname, 'src'),
 	entry: './index.js',
 
 	output: {
-		path: path.resolve(__dirname, "build"),
+		path: path.resolve(__dirname, 'build'),
 		publicPath: '/',
 		filename: 'bundle.js'
 	},
@@ -23,13 +23,13 @@ module.exports = {
 	resolve: {
 		extensions: ['.jsx', '.js', '.json', '.less'],
 		modules: [
-			path.resolve(__dirname, "src/lib"),
-			path.resolve(__dirname, "node_modules"),
+			path.resolve(__dirname, 'src/lib'),
+			path.resolve(__dirname, 'node_modules'),
 			'node_modules'
 		],
 		alias: {
-			components: path.resolve(__dirname, "src/components"),    // used for tests
-			style: path.resolve(__dirname, "src/style"),
+			components: path.resolve(__dirname, 'src/components'),    // used for tests
+			style: path.resolve(__dirname, 'src/style'),
 			'react': 'preact-compat',
 			'react-dom': 'preact-compat'
 		}
@@ -49,7 +49,7 @@ module.exports = {
 				use: 'babel-loader'
 			},
 			{
-				// Transform our own .(less|css) files with PostCSS and CSS-modules
+                // Transform our own .(less|css) files with PostCSS and CSS-modules
 				test: /\.(less|css)$/,
 				include: [path.resolve(__dirname, 'src/components')],
 				use: ExtractTextPlugin.extract({
@@ -57,20 +57,20 @@ module.exports = {
 					use: [
 						{
 							loader: 'css-loader',
-							options: { modules: true, sourceMap: CSS_MAPS, importLoaders: 1 }
+							options: {modules: true, sourceMap: CSS_MAPS, importLoaders: 1}
 						},
 						{
-							loader: `postcss-loader`,
+							loader: 'postcss-loader',
 							options: {
 								sourceMap: CSS_MAPS,
 								plugins: () => {
-									autoprefixer({ browsers: [ 'last 2 versions' ] });
+									autoprefixer({browsers: ['last 2 versions']});
 								}
 							}
 						},
 						{
 							loader: 'less-loader',
-							options: { sourceMap: CSS_MAPS }
+							options: {sourceMap: CSS_MAPS}
 						}
 					]
 				})
@@ -83,20 +83,20 @@ module.exports = {
 					use: [
 						{
 							loader: 'css-loader',
-							options: { sourceMap: CSS_MAPS, importLoaders: 1 }
+							options: {sourceMap: CSS_MAPS, importLoaders: 1}
 						},
 						{
-							loader: `postcss-loader`,
+							loader: 'postcss-loader',
 							options: {
 								sourceMap: CSS_MAPS,
 								plugins: () => {
-									autoprefixer({ browsers: [ 'last 2 versions' ] });
+									autoprefixer({browsers: ['last 2 versions']});
 								}
 							}
 						},
 						{
 							loader: 'less-loader',
-							options: { sourceMap: CSS_MAPS }
+							options: {sourceMap: CSS_MAPS}
 						}
 					]
 				})
@@ -111,7 +111,7 @@ module.exports = {
 			},
 			{
 				test: /\.(svg|woff2?|ttf|eot|jpe?g|png|gif)(\?.*)?$/i,
-				use: ENV==='production' ? 'file-loader' : 'url-loader'
+				use: ENV === 'production' ? 'file-loader' : 'url-loader'
 			}
 		]
 	},
@@ -127,13 +127,13 @@ module.exports = {
 		}),
 		new HtmlWebpackPlugin({
 			template: './index.ejs',
-			minify: { collapseWhitespace: true }
+			minify: {collapseWhitespace: true}
 		}),
 		new CopyWebpackPlugin([
-			{ from: './manifest.json', to: './' },
-			{ from: './favicon.ico', to: './' }
+            {from: './manifest.json', to: './'},
+            {from: './favicon.ico', to: './'}
 		])
-	]).concat(ENV==='production' ? [
+	]).concat(ENV === 'production' ? [
 		new webpack.optimize.UglifyJsPlugin({
 			output: {
 				comments: false
@@ -164,9 +164,9 @@ module.exports = {
 			}
 		}),
 
-		// strip out babel-helper invariant checks
+        // strip out babel-helper invariant checks
 		new ReplacePlugin([{
-			// this is actually the property name https://github.com/kimhou/replace-bundle-webpack-plugin/issues/1
+            // this is actually the property name https://github.com/kimhou/replace-bundle-webpack-plugin/issues/1
 			partten: /throw\s+(new\s+)?[a-zA-Z]+Error\s*\(/g,
 			replacement: () => 'return;('
 		}]),
@@ -188,7 +188,7 @@ module.exports = {
 		})
 	] : []),
 
-	stats: { colors: true },
+	stats: {colors: true},
 
 	node: {
 		global: true,
@@ -199,7 +199,7 @@ module.exports = {
 		setImmediate: false
 	},
 
-	devtool: ENV==='production' ? 'source-map' : 'cheap-module-eval-source-map',
+	devtool: ENV === 'production' ? 'source-map' : 'cheap-module-eval-source-map',
 
 	devServer: {
 		port: process.env.PORT || 8080,
@@ -209,11 +209,11 @@ module.exports = {
 		historyApiFallback: true,
 		open: true,
 		proxy: {
-			// OPTIONAL: proxy configuration:
-			// '/optional-prefix/**': { // path pattern to rewrite
-			//   target: 'http://target-host.com',
-			//   pathRewrite: path => path.replace(/^\/[^\/]+\//, '')   // strip first path segment
-			// }
+            // OPTIONAL: proxy configuration:
+            // '/optional-prefix/**': { // path pattern to rewrite
+            //   target: 'http://target-host.com',
+            //   pathRewrite: path => path.replace(/^\/[^\/]+\//, '')   // strip first path segment
+            // }
 		}
 	}
 };
