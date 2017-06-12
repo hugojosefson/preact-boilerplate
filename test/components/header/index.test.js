@@ -1,7 +1,7 @@
 import {h} from 'preact';
 import {expect} from 'chai';
 
-import Header from '../../../src/components/header';
+import Header from '../../../src/client/components/header';
 
 describe('components/Header', () => {
 
