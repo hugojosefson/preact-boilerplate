@@ -89,7 +89,7 @@
         "no-new-func": 2,
         "guard-for-in": 2,
         "eqeqeq": 2,
-        "no-else-return": 2,
+        "no-else-return": 0,
         "no-redeclare": 2,
         "no-dupe-keys": 2,
         "radix": 2,

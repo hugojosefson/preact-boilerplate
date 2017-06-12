@@ -1,14 +1,16 @@
-import webpack from 'webpack';
-import ExtractTextPlugin from 'extract-text-webpack-plugin';
-import HtmlWebpackPlugin from 'html-webpack-plugin';
-import autoprefixer from 'autoprefixer';
-import CopyWebpackPlugin from 'copy-webpack-plugin';
-import ReplacePlugin from 'replace-bundle-webpack-plugin';
-import OfflinePlugin from 'offline-plugin';
-import path from 'path';
-const ENV = process.env.NODE_ENV || 'development';
+const webpack = require('webpack');
+const ExtractTextPlugin = require('extract-text-webpack-plugin');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const autoprefixer = require('autoprefixer');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
+const ReplacePlugin = require('replace-bundle-webpack-plugin');
+const OfflinePlugin = require('offline-plugin');
+const isProduction = require('is-production');
+const path = require('path');
 
-const CSS_MAPS = ENV !== 'production';
+const {port, actualServerPort} = require('./src/server/config');
+const ENV = process.env.NODE_ENV || 'development';
+const CSS_MAPS = !isProduction();
 
 module.exports = {
     context: path.resolve(__dirname, 'src/client'),
@@ -39,14 +41,41 @@ module.exports = {
         rules: [
             {
                 test: /\.jsx?$/,
-                exclude: path.resolve(__dirname, 'src/client'),
+                exclude: path.resolve(__dirname, 'src'),
                 enforce: 'pre',
                 use: 'source-map-loader'
             },
             {
                 test: /\.jsx?$/,
                 exclude: /node_modules/,
-                use: 'babel-loader'
+                use: {
+                    loader: 'babel-loader',
+                    options: {
+                        sourceMaps: true,
+                        presets: [
+                            [
+                                'env',
+                                {
+                                    modules: false,
+                                    targets: {
+                                        browsers: [
+                                            'last 2 versions'
+                                        ]
+                                    }
+                                }
+                            ]
+                        ],
+                        plugins: [
+                            'transform-class-properties',
+                            [
+                                'transform-react-jsx',
+                                {
+                                    pragma: 'h'
+                                }
+                            ]
+                        ]
+                    }
+                }
             },
             {
                 // Transform our own .(less|css) files with PostCSS and CSS-modules
@@ -111,7 +140,7 @@ module.exports = {
             },
             {
                 test: /\.(svg|woff2?|ttf|eot|jpe?g|png|gif)(\?.*)?$/i,
-                use: ENV === 'production' ? 'file-loader' : 'url-loader'
+                use: isProduction() ? 'file-loader' : 'url-loader'
             }
         ]
     },
@@ -120,7 +149,7 @@ module.exports = {
         new ExtractTextPlugin({
             filename: 'style.css',
             allChunks: true,
-            disable: ENV !== 'production'
+            disable: !isProduction()
         }),
         new webpack.DefinePlugin({
             'process.env.NODE_ENV': JSON.stringify(ENV)
@@ -133,12 +162,13 @@ module.exports = {
             {from: './manifest.json', to: './'},
             {from: './favicon.ico', to: './'}
         ])
-    ]).concat(ENV === 'production' ? [
+    ]).concat(isProduction() ? [
         new webpack.optimize.UglifyJsPlugin({
             output: {
                 comments: false
             },
             compress: {
+                /* eslint-disable camelcase */
                 unsafe_comps: true,
                 properties: true,
                 keep_fargs: false,
@@ -161,6 +191,7 @@ module.exports = {
                 join_vars: true,
                 cascade: true,
                 drop_console: true
+                /* eslint-enable camelcase */
             }
         }),
 
@@ -199,21 +230,19 @@ module.exports = {
         setImmediate: false
     },
 
-    devtool: ENV === 'production' ? 'source-map' : 'cheap-module-eval-source-map',
+    devtool: 'source-map',
 
     devServer: {
-        port: process.env.PORT || 8080,
+        port,
         host: 'localhost',
         publicPath: '/',
         contentBase: './src/client',
         historyApiFallback: true,
         open: true,
         proxy: {
-            // OPTIONAL: proxy configuration:
-            // '/optional-prefix/**': { // path pattern to rewrite
-            //   target: 'http://target-host.com',
-            //   pathRewrite: path => path.replace(/^\/[^\/]+\//, '')   // strip first path segment
-            // }
+            '/api/**': {
+                target: 'http://localhost:' + actualServerPort
+            }
         }
     }
 };
