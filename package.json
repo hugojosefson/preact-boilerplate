@@ -16,7 +16,7 @@
     "start": "cd build && cross-env NODE_ENV=production node .",
     "dev": "npm run clean && concurrently --kill-others -p \"[{name}]\" -n \"SERVER,CLIENT\" -c \"bgBlue.bold,bgMagenta.bold\" \"npm run dev:server\" \"npm run dev:client\"",
     "dev:client": "cross-env NODE_ENV=development webpack-dev-server --inline --hot --progress",
-    "dev:server": "cross-env NODE_ENV=development node ./babel.server",
+    "dev:server": "cross-env NODE_ENV=development node ./babel.server.js",
     "test": "npm run -s lint && jest --coverage",
     "test:watch": "npm run -s test -- --watch",
     "lint": "eslint src test"
