@@ -3,7 +3,8 @@
   "version": "6.0.0",
   "description": "Ready-to-go Preact starter project powered by webpack.",
   "scripts": {
-    "heroku-postbuild": "NPM_CONFIG_PRODUCTION= npm_config_production= NODE_ENV=development npm install && npm run build",
+    "heroku-prebuild": "node ./heroku-check-environment.js",
+    "heroku-postbuild": "npm install && npm run build",
     "clean": "rimraf build",
     "prebuild": "npm run clean",
     "build": "npm run build:server && npm run build:client",
